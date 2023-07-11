@@ -10,3 +10,30 @@
 // R0 >= 0, R1 >= 0, and R0*R1 < 32768.
 
 // Put your code here.
+//Setting counter and sum
+@i 
+M = 1
+@R2
+M = 0
+
+(LOOP)
+@i
+D = M
+@R1 
+D = M - D
+@END
+D; JLT
+@R0 
+D = M 
+@R2
+M = M + D
+@i 
+M = M + 1
+@LOOP
+0; JMP
+
+(END)
+@END
+0; JMP
+
+
