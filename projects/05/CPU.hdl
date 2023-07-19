@@ -40,4 +40,39 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+
+    //A register
+    Not(in=instruction[15], out=notI);
+    Or(a=notI, b=instruction[5], out=aRegLoadBit);
+    ARegister(in=aIn, load=aRegLoadBit, out=aRegOut, out[0..14]=addressM);
+
+    //Mux1
+    Mux16(a=instruction, b=ALUOut, sel=instruction[15], out=aIn);
+
+    //D Register
+    And(a=instruction[15], b=instruction[4], out=dRegLoad);
+    DRegister(in=ALUOut, load=dRegLoad, out=dRegOut);
+
+    //Mux2
+    And(a=instruction[15], b=instruction[12], out=muxLoad);
+    Mux16(a=aRegOut, b=inM, sel=muxLoad, out=ALUIn);
+
+    //ALU
+    ALU(x=dRegOut, y=ALUIn, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], 
+    f=instruction[7], no=instruction[6], out=ALUOut, out=outM, zr=zr, ng=ng);
+
+    //PC  
+    Or(a=zr, b=ng, out=zrOrng);
+    Not(in=zrOrng, out=checkPositive);
+    And(a=instruction[2], b=ng, out=checkJ1);
+    And(a=instruction[1], b=zr, out=checkJ2);
+    And(a=instruction[0], b=checkPositive, out=checkJ3);
+    Or(a=checkJ1, b=checkJ2, out=J1orJ2);
+    Or(a=checkJ3, b=J1orJ2, out=J1orJ2orJ3);
+    And(a=instruction[15], b=J1orJ2orJ3, out=load, out=notInc);
+    Not(in=notInc, out=inc);
+    PC(in=aRegOut, load=load, inc=inc, reset=reset, out[0..14]=pc);   
+
+    //writeM
+    And(a=instruction[15], b=instruction[3], out=writeM);
 }
